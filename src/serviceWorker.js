@@ -118,7 +118,40 @@ class ServiceWorker {
           if (!appId)
             log.error('There was no app ID stored when trying to display the notification. An app ID is required.');
         })
-        .then(() => ServiceWorker._getLastNotifications())
+        .then(() => {
+          if (event.data) {
+            // A push event with
+            let notifications = [];
+            let data = {};
+            try {
+              // REMOVE ME
+              if (Environment.isDev()) {
+                data = {
+                  "alert": "Message body",
+                  "title": "Message title",
+                  "icon": "http://domain.com/icon.png",
+                  "url": "http://google.com",
+                  "buttons": [
+                    {"id": "id1", "text": "text1", "icon": "http://domain.com/icon1.png"},
+                    {"id": "id2", "text": "text2", "icon": "http://domain.com/icon2.png"}
+                  ],
+                  "os_data": {
+                    "i": "97a704ef-1593-4e38-a2cc-8a5da62633c1", // Notification UUID
+                  }
+                  // custom key value pairs the developer adds will live here at the root. This allows the developer to send notifications to imported users who don't have our service worker yet in the format they need.
+                };
+              } else {
+                data = event.data.json();
+              }
+              log.debug('event.data JSON:', json);
+            } catch (e) {
+              log.warn('Could not parse push data as JSON, retrieving message from OneSignal instead.');
+              return ServiceWorker._getLastNotifications();
+            }
+          } else {
+            return ServiceWorker._getLastNotifications();
+          }
+        })
         .then(notifications => {
           if (!notifications || notifications.length == 0) {
             log.warn('Push signal received, but there were no messages after calling chromeweb_notification().')
