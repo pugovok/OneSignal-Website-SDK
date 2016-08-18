@@ -394,7 +394,7 @@ class ServiceWorker {
           notification.heading = notification.heading ? notification.heading : defaultTitle;
           notification.icon = notification.icon ? notification.icon : (defaultIcon ? defaultIcon : undefined);
           var extra = {};
-          extra.tag = `${appId}`;
+          extra.tag = ``;
           extra.persistNotification = persistNotification;
 
           // Allow overriding some values
